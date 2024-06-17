@@ -68,5 +68,8 @@
     "src/**/*.(js,jsx,ts,tsx,json,css,md": [
       "prettier --write"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }
