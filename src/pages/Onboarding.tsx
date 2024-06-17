@@ -210,7 +210,7 @@ export function ShareholderGrantsStep() {
   }
   const nextLink = !shareholders[shareholder.id + 1]
     ? `../done`
-    : `../../grants/${shareholder.id + 1}`;
+    : `../grants/${shareholder.id + 1}`;
 
   function submitGrant(e: React.FormEvent) {
     e.preventDefault();
@@ -359,7 +359,14 @@ export function DoneStep() {
 
   React.useEffect(() => {
     async function saveData() {
-      const user = await userMutation.mutateAsync({ email, name: userName });
+      let user
+      try {
+        user = await userMutation.mutateAsync({ email, name: userName });
+      } catch (error) {
+        console.error(error)
+        return
+      }
+      
       await Promise.all([
         ...Object.values(grants).map((grant) =>
           grantMutation.mutateAsync(grant)
@@ -375,6 +382,7 @@ export function DoneStep() {
         navigate("/dashboard");
       } else {
         // Something bad happened.
+        console.log("Something bad happened")
       }
     }
 
