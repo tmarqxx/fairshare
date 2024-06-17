@@ -81,7 +81,8 @@ describe("Dashboard", () => {
       { wrapper: ThemeWrapper }
     );
 
-    await screen.findByText("Tonya");
+    expect((await screen.findAllByText("Tonya")).length).toBeGreaterThan(0);
+
     expect(screen.getByTestId("shareholder-Tonya-grants")).toHaveTextContent(
       "2"
     );
