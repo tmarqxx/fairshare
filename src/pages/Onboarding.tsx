@@ -288,7 +288,7 @@ export function ShareholderGrantsStep() {
                 onChange={(e) =>
                   setDraftGrant((g) => ({
                     ...g,
-                    amount: parseInt(e.target.value, 3),
+                    amount: parseInt(e.target.value, 10),
                   }))
                 }
               />

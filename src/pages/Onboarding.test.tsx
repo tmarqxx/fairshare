@@ -200,7 +200,8 @@ describe("Onboarding", () => {
     await userEvent.click(grantNameInput);
     await userEvent.paste("2020 Incentive");
     await userEvent.click(grantAmountInput);
-    await userEvent.paste("2000");
+    await userEvent.type(grantAmountInput, "2000");
+    expect(grantAmountInput).toHaveValue("2000")
     await userEvent.click(grantDateInput);
     await userEvent.paste(Date.now().toLocaleString());
 
