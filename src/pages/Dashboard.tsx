@@ -159,7 +159,7 @@ export function Dashboard() {
       </Stack>
       <VictoryPie
         colorScale="blue"
-        data={mode === "investor" ? getGroupData() : getInvestorData()}
+        data={mode === "investor" ? getInvestorData() : getGroupData()}
       />
       <Stack divider={<StackDivider />}>
         <Heading>Shareholders</Heading>
