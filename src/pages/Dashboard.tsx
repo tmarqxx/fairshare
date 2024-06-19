@@ -26,6 +26,11 @@ import {
 import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import produce from "immer";
+import {
+  useCompanyQuery,
+  useGrantsQuery,
+  useShareholdersQuery,
+} from "../queries";
 import { NewShareholderForm } from "../components/forms/NewShareholderForm";
 import { Navbar } from "../components/forms/Navbar";
 
@@ -46,38 +51,16 @@ export function Dashboard() {
       }).then((res) => res.json()),
     {
       onSuccess: (data) => {
-        queryClient.setQueryData<{ [id: number]: Shareholder } | undefined>(
-          "shareholders",
-          (s) => {
-            if (s) {
-              return produce(s, (draft) => {
-                draft[data.id] = data;
-              });
-            }
-          }
-        );
+        queryClient.invalidateQueries("shareholders");
       },
     }
   );
 
-  // TODO: using this dictionary thing a lot... hmmm
-  const grant = useQuery<{ [dataID: number]: Grant }, string>("grants", () =>
-    fetch("/grants").then((e) => e.json())
-  );
-  const shareholder = useQuery<{ [dataID: number]: Shareholder }>(
-    "shareholders",
-    () => fetch("/shareholders").then((e) => e.json())
-  );
+  const grant = useGrantsQuery();
 
-  if (grant.status === "error") {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        <AlertTitle>Error: {grant.error}</AlertTitle>
-      </Alert>
-    );
-  }
-  if (grant.status !== "success") {
+  const shareholder = useShareholdersQuery();
+
+  if (grant.isLoading || shareholder.isLoading) {
     return <Spinner />;
   }
   if (!grant.data || !shareholder.data) {
