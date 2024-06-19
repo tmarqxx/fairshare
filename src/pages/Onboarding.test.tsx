@@ -7,6 +7,7 @@ import {
   ShareholderGrantsStep,
   ShareholdersStep,
   signupReducer,
+  Start,
   UserStep,
 } from "./Onboarding";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -128,7 +129,7 @@ describe("Onboarding", () => {
 
     let newShareholderNameField = screen.getByRole("textbox");
     let groupPicker = screen.getByRole("combobox");
-    let createButton = screen.getByRole("button", { name: "Create" });
+    let createButton = screen.getByRole("button", { name: "Save" });
     await waitFor(() => {
       expect(newShareholderNameField).toBeVisible();
     });
@@ -143,7 +144,7 @@ describe("Onboarding", () => {
     await userEvent.click(addShareholdersButton);
     newShareholderNameField = screen.getByRole("textbox");
     groupPicker = screen.getByRole("combobox");
-    createButton = screen.getByRole("button", { name: "Create" });
+    createButton = screen.getByRole("button", { name: "Save" });
     await waitFor(() => {
       expect(newShareholderNameField).toBeVisible();
     });

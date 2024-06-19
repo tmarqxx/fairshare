@@ -26,14 +26,11 @@ import {
 import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import produce from "immer";
+import { NewShareholderForm } from "../components/forms/NewShareholderForm";
 
 export function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const queryClient = useQueryClient();
-  const [newShareholder, setNewShareholder] = React.useState<
-    Omit<Shareholder, "id" | "grants">
-  >({ name: "", group: "employee" });
-  const { mode } = useParams();
 
   const shareholderMutation = useMutation<
     Shareholder,
@@ -120,9 +117,10 @@ export function Dashboard() {
       .filter((e) => e.y > 0);
   }
 
-  async function submitNewShareholder(e: React.FormEvent) {
-    e.preventDefault();
-    await shareholderMutation.mutateAsync(newShareholder);
+  async function submitNewShareholder(
+    formValues: Pick<Shareholder, "name" | "group">
+  ) {
+    await shareholderMutation.mutateAsync(formValues);
     onClose();
   }
 
@@ -200,30 +198,7 @@ export function Dashboard() {
         <Button onClick={onOpen}>Add Shareholder</Button>
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalContent>
-            <Stack p="10" as="form" onSubmit={submitNewShareholder}>
-              <Input
-                value={newShareholder.name}
-                placeholder="Shareholder Name"
-                onChange={(e) =>
-                  setNewShareholder((s) => ({ ...s, name: e.target.value }))
-                }
-              />
-              <Select
-                placeholder="Type of shareholder"
-                value={newShareholder.group}
-                onChange={(e) =>
-                  setNewShareholder((s) => ({
-                    ...s,
-                    group: e.target.value as any,
-                  }))
-                }
-              >
-                <option value="investor">Investor</option>
-                <option value="founder">Founder</option>
-                <option value="employee">Employee</option>
-              </Select>
-              <Button type="submit" colorScheme="teal">
-                Save
+              <NewShareholderForm onSubmit={submitNewShareholder} />
               </Button>
             </Stack>
           </ModalContent>

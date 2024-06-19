@@ -28,7 +28,6 @@ import {
   ModalContent,
   FormHelperText,
   Spinner,
-  Select,
   Badge,
 } from "@chakra-ui/react";
 import produce from "immer";
@@ -36,6 +35,8 @@ import { useContext } from "react";
 import { Company, Grant, Shareholder, User } from "../types";
 import { useMutation, useQueryClient } from "react-query";
 import { AuthContext } from "../App";
+import { NewGrantForm } from "../components/forms/NewGrantForm";
+import { NewShareholderForm } from "../components/forms/NewShareholderForm";
 
 export const OnboardingContext = React.createContext<
   OnboardingFields & { dispatch: React.Dispatch<OnboardingAction> }
@@ -189,14 +190,11 @@ export function ShareholdersStep() {
   const [searchParams] = useSearchParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { shareholders, companyName, dispatch } = useContext(OnboardingContext);
-  const [newShareholder, setNewShareholder] = React.useState<
-    Omit<Shareholder, "id" | "grants">
-  >({ name: "", group: "employee" });
 
-  function submitNewShareholder(e: React.FormEvent) {
-    e.preventDefault();
-    dispatch({ type: "addShareholder", payload: newShareholder });
-    setNewShareholder({ name: "", group: "employee" });
+  function submitNewShareholder(
+    formValues: Pick<Shareholder, "name" | "group">
+  ) {
+    dispatch({ type: "addShareholder", payload: formValues });
     onClose();
   }
 
@@ -215,33 +213,7 @@ export function ShareholdersStep() {
         ))}
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalContent>
-            <Stack p="10" as="form" onSubmit={submitNewShareholder}>
-              <Input
-                value={newShareholder.name}
-                placeholder="Shareholder Name"
-                onChange={(e) =>
-                  setNewShareholder((s) => ({ ...s, name: e.target.value }))
-                }
-              />
-              {/* TODO: bad any */}
-              <Select
-                placeholder="Type of shareholder"
-                value={newShareholder.group}
-                onChange={(e) =>
-                  setNewShareholder((s) => ({
-                    ...s,
-                    group: e.target.value as any,
-                  }))
-                }
-              >
-                <option value="investor">Investor</option>
-                <option value="founder">Founder</option>
-                <option value="employee">Employee</option>
-              </Select>
-              <Button type="submit" colorScheme="teal">
-                Create
-              </Button>
-            </Stack>
+            <NewShareholderForm onSubmit={submitNewShareholder} />
           </ModalContent>
         </Modal>
       </Stack>
@@ -265,13 +237,6 @@ export function ShareholderGrantsStep() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const shareholder = shareholders[parseInt(shareholderID, 10)];
 
-  const [draftGrant, setDraftGrant] = React.useState<Omit<Grant, "id">>({
-    name: "",
-    amount: 0,
-    issued: "",
-    type: "common",
-  });
-
   if (!shareholder) {
     return <Navigate to="/start/shareholders" replace={true} />;
   }
@@ -279,19 +244,17 @@ export function ShareholderGrantsStep() {
     ? `../done`
     : `../grants/${shareholder.id + 1}`;
 
-  function submitGrant(e: React.FormEvent) {
-    e.preventDefault();
+  function submitGrant(formValues: Omit<Grant, "id">) {
+    console.log("formValues", formValues);
     dispatch({
       type: "addGrant",
       payload: {
-        shareholderID: parseInt(shareholderID, 10),
-        grant: draftGrant,
+        shareholderID: parseInt(shareholderID),
+        grant: formValues,
       },
     });
     onClose();
-    setDraftGrant({ name: "", amount: 0, issued: "", type: "common" });
   }
-  console.log(shareholder)
 
   return (
     <Stack>
@@ -330,50 +293,7 @@ export function ShareholderGrantsStep() {
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <Stack p="10" as="form" onSubmit={submitGrant}>
-            <Text>
-              A <strong>Grant</strong> is any occasion where new shares are
-              issued to a shareholder.
-            </Text>
-
-            <FormControl>
-              <Input
-                variant="flushed"
-                placeholder="Name"
-                data-testid="grant-name"
-                value={draftGrant.name}
-                onChange={(e) =>
-                  setDraftGrant((g) => ({ ...g, name: e.target.value }))
-                }
-              />
-            </FormControl>
-            <FormControl>
-              <Input
-                variant="flushed"
-                placeholder="Shares"
-                data-testid="grant-amount"
-                value={draftGrant.amount || ""}
-                onChange={(e) =>
-                  setDraftGrant((g) => ({
-                    ...g,
-                    amount: parseInt(e.target.value, 10),
-                  }))
-                }
-              />
-            </FormControl>
-            <FormControl>
-              <Input
-                variant="flushed"
-                type="date"
-                data-testid="grant-issued"
-                value={draftGrant.issued}
-                onChange={(e) =>
-                  setDraftGrant((g) => ({ ...g, issued: e.target.value }))
-                }
-              />
-            </FormControl>
-            <Button type="submit">Save</Button>
-          </Stack>
+          <NewGrantForm onSubmit={submitGrant} />
         </ModalContent>
       </Modal>
       <Button as={Link} to={nextLink} colorScheme="teal">
