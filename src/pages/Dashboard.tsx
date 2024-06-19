@@ -7,7 +7,6 @@ import {
   Heading,
   Stack,
   Button,
-  Input,
   StackDivider,
   Table,
   Thead,
@@ -18,10 +17,12 @@ import {
   useDisclosure,
   ModalContent,
   Spinner,
-  Alert,
-  AlertTitle,
-  AlertIcon,
-  Select,
+  Switch,
+  FormLabel,
+  FormControl,
+  Box,
+  Spacer,
+  Flex,
 } from "@chakra-ui/react";
 import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -95,7 +96,11 @@ export function Dashboard() {
       <PieChart />
 
       <Stack divider={<StackDivider />}>
+        <Flex>
         <Heading>Shareholders</Heading>
+          <Spacer />
+          <Button onClick={onOpen}>Add Shareholder</Button>
+        </Flex>
         <Box style={{ width: "100%", maxWidth: 736, overflow: "auto" }}>
         <Table>
           <Thead>
@@ -146,12 +151,11 @@ export function Dashboard() {
                 })}
           </Tbody>
         </Table>
-        <Button onClick={onOpen}>Add Shareholder</Button>
+
         <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
           <ModalContent>
               <NewShareholderForm onSubmit={submitNewShareholder} />
-              </Button>
-            </Stack>
           </ModalContent>
         </Modal>
         </Box>
