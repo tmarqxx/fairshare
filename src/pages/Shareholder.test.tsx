@@ -133,8 +133,15 @@ describe("ShareholderPage", () => {
     expect(
       await within(grantTable).findByText(/Incentive Package 2019/)
     ).toBeInTheDocument();
+    expect(within(grantTable).getByText(/2000/)).toBeInTheDocument();
     expect(
       within(grantTable).getByText(new Date("2010-12-12").toLocaleDateString())
     ).toBeInTheDocument();
   });
+
+  it.todo("should redirect if shareholder is not found");
+
+  it.todo("should sum the total share value");
+
+  it.todo("should revalidate data after new grant is added");
 });

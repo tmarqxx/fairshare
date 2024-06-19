@@ -253,6 +253,8 @@ describe("Dashboard", () => {
     expect(within(chart).getByText(/investor/)).toBeInTheDocument();
   });
 
+  it.todo("should show share types in share types chart");
+
   it("should allow adding new shareholders", async () => {
     const Router = getTestRouter("/dashboard");
     const handlers = getHandlers(
@@ -313,4 +315,8 @@ describe("Dashboard", () => {
       await screen.findByTestId("shareholder-Mike-group")
     ).toHaveTextContent("investor");
   }, 10000);
+
+  it.todo("should allow viewing of shares value");
+
+  it.todo("should display the total market cap");
 });
