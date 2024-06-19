@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { RestRequest, rest } from "msw";
 import { Company, User, Shareholder, Grant } from "./types";
 
 function nextID(collection: { [key: number]: unknown }) {
@@ -8,6 +8,12 @@ function nextID(collection: { [key: number]: unknown }) {
 }
 function storeState(state: any): void {
   localStorage.setItem("data", JSON.stringify(state));
+}
+
+function getQueryParams(req: RestRequest) {
+  const url = new URL(req.url);
+
+  return url.searchParams;
 }
 
 export function getHandlers(
@@ -38,6 +44,17 @@ export function getHandlers(
       }
     }, 5000);
   }
+
+  function shareAmountReducer(isByValue: boolean = false) {
+    return (acc: number, grantID: number) => {
+      let amount = grants[grantID].amount;
+      if (isByValue) {
+        amount *= company!.shareTypes[grants[grantID].type] ?? 1.0;
+      }
+      return acc + amount;
+    };
+  }
+
   return [
     // Yes, this is a passwordless login
     rest.post<{ email: string }>("/signin", (req, res, ctx) => {
@@ -62,26 +79,26 @@ export function getHandlers(
     }),
 
     rest.post<Omit<Shareholder, "id">>("/shareholder/new", (req, res, ctx) => {
-        const { name, email, grants = [], group } = req.body;
-        const shareholder: Shareholder = {
-          name,
-          email,
-          grants,
-          id: nextID(shareholders),
-          group,
-        };
-        shareholders[shareholder.id] = shareholder;
-        if (email) {
-          const existingUser = users[email];
-          if (existingUser.shareholderID) {
-            // User already has a shareholder ID
-            console.error("User already has a shareholder ID");
-            return res(ctx.status(400));
-          }
-          users[email].shareholderID = shareholder.id;
+      const { name, email, grants = [], group } = req.body;
+      const shareholder: Shareholder = {
+        name,
+        email,
+        grants,
+        id: nextID(shareholders),
+        group,
+      };
+      shareholders[shareholder.id] = shareholder;
+      if (email) {
+        const existingUser = users[email];
+        if (existingUser.shareholderID) {
+          // User already has a shareholder ID
+          console.error("User already has a shareholder ID");
+          return res(ctx.status(400));
         }
+        users[email].shareholderID = shareholder.id;
+      }
 
-        return res(ctx.json(shareholder));
+      return res(ctx.json(shareholder));
     }),
 
     rest.post<{ shareholderID?: number; grant: Omit<Grant, "id"> }>(
@@ -123,6 +140,63 @@ export function getHandlers(
     rest.get("/grants", (req, res, ctx) => {
       return res(ctx.json(grants));
     }),
+
+    rest.get<{ x: number | string; y: number }[]>(
+      "/grants/:mode",
+      (req, res, ctx) => {
+        const params = getQueryParams(req);
+
+        const isByValue =
+          params.get("byValue") === "true" &&
+          !!company &&
+          !!company?.shareTypes;
+
+        if (req.params.mode === "group") {
+          return res(
+            ctx.json(
+              ["investor", "founder", "employee"]
+                .map((group) => ({
+                  x: group,
+                  y: Object.values(shareholders ?? {})
+                    .filter((s) => s.group === group)
+                    .flatMap((s) => s.grants)
+                    .reduce(shareAmountReducer(isByValue), 0),
+                }))
+                .filter((e) => e.y > 0)
+            )
+          );
+        }
+
+        if (req.params.mode === "investor") {
+          return res(
+            ctx.json(
+              Object.values(shareholders)
+                .map((s) => ({
+                  x: s.name,
+                  y: s.grants.reduce(shareAmountReducer(isByValue), 0),
+                }))
+                .filter((e) => e.y > 0)
+            )
+          );
+        }
+
+        if (req.params.mode === "sharetype") {
+          return res(
+            ctx.json(
+              ["common", "preferred"].map((group) => ({
+                x: group,
+                y: Object.values(grants ?? {})
+                  .filter((g) => g.type === group)
+                  .map((grant) => grant.id)
+                  .reduce(shareAmountReducer(isByValue), 0),
+              }))
+            )
+          );
+        }
+
+        return res(ctx.json([]));
+      }
+    ),
 
     rest.get("/shareholders", (req, res, ctx) => {
       return res(ctx.json(shareholders));
