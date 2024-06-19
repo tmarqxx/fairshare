@@ -2,6 +2,46 @@
 
 Welcome to Admiral! We have pivoted, and now our product is an equity sharing app. We're still in MVP phase, and are excited for our new hires to help build our app.
 
+## Issues & Changes
+
+**Onboarding flow**
+
+- [x] Fix bugs preventing complete onboarding flow
+- [x] Persist onboarding progress via URL query parameters
+- [x] Correct URLS/linking between onboarding steps
+- [x] Enable Share Type configuration during Company step
+- [x] Pass correct isDisabled prop to Next buttons between steps
+
+**Dashboard page**
+
+- [x] Pie chart: display correct data when by grouping by group or investor
+- [x] Pie chart: add support for grouping data by share type
+- [x] Pie chart: add support for viewing Equity value
+- [x] Pie chart: show total market cap
+- [x] Add Sign Out button to top nav
+- [x] Added additional data columns to shareholder table for shares by type
+- [x] Ensure data is correctly revalidating/re-rendering after new grants are added
+- [x] Style and UX improvements
+
+**Shareholder page**
+
+- [x] Fix data revalidation upon adding new grant
+- [x] Show shareholder's total equity value
+- [x] Style and UX improvements
+
+**Backend changes**
+
+- [x] New endpoint `GET /grants/:mode?byValue=boolean`. Returns data to be injected into the pie chart. Groups data by mode, and accumulates amount of shares or value of shares if `byValue=true` is passed in the query parameters.
+- [x] New endpoint `GET /shareholders/:shareholderID`. Returns data for a shareholder, and includes a `grantsData` attribute that loads the related grants objects as well as their value.
+
+**General changes**
+
+- [x] Fix broken/failing tests
+- [x] Migrate from ReactDOM.render to createRoot
+- [x] Add ModalOverlay to all modals for extra clarity
+- [x] Make colors, text, spacing, UI elements, etc. more consistent across pages
+- [x] Add util function to format number to currency display
+
 ## Frontend
 
 The frontend of the application is a React application that uses context and React Query to manage state.
@@ -10,11 +50,12 @@ You can find documentation for these here:
 https://reactjs.org/docs/context.html
 https://react-query.tanstack.com/
 
-Importantly, there are two key conepts for React Query: mutations and queries. When you want to update data, you use a mutation. When you're just referencing data, you use a query. 
+Importantly, there are two key conepts for React Query: mutations and queries. When you want to update data, you use a mutation. When you're just referencing data, you use a query.
 
 The application is broken up into a few main areas:
 
 ### Styles
+
 We use chakra for our component library. We really like it! Please use it for new UI features.
 
 https://chakra-ui.com/docs/getting-started
@@ -29,12 +70,15 @@ https://testing-library.com/docs/react-testing-library/intro
 ### Structure
 
 #### Onboarding
+
 This portion of the app contains components for all of the steps in the onboarding process
 
 #### Dashboard
+
 The dashboard contains company and aggregated metrics which show how ownership is broken down across all shareholders.
 
 #### Shareholder
+
 The ShareholderPage contains data specific to a just a single shareholder, and shows how much equity they have.
 
 Today, the app allows basic create operations but isn't great for updates (or other operations). We need your help to improve this functionality.
@@ -46,8 +90,6 @@ We're saving server expenses by mocking all network calls using MSW. You don't n
 The behavior of our "backend" is defined by the "handlers" in `handlers.ts`. If you need to make changes or add endpoints, this is where you can do this.
 
 You probably don't need to worry about our database--its just some objects in memory on the user's browers. Its genius, right?
-
- 
 
 # Getting Started with Create React App
 
