@@ -7,7 +7,7 @@ import { getHandlers } from "../handlers";
 import userEvent from "@testing-library/user-event";
 
 describe("ShareholderPage", () => {
-  it("should show a sumamry of shares", async () => {
+  it("should show a summary of shares", async () => {
     const Router = getTestRouter("/shareholder/0");
     const handlers = getHandlers(
       {
