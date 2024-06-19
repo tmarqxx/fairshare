@@ -61,9 +61,7 @@ export function getHandlers(
       return res(ctx.json(company));
     }),
 
-    rest.post<Omit<Shareholder, "id">>(
-      "/shareholder/new",
-      (req, res, ctx) => {
+    rest.post<Omit<Shareholder, "id">>("/shareholder/new", (req, res, ctx) => {
         const { name, email, grants = [], group } = req.body;
         const shareholder: Shareholder = {
           name,
@@ -84,8 +82,7 @@ export function getHandlers(
         }
 
         return res(ctx.json(shareholder));
-      }
-    ),
+    }),
 
     rest.post<{ shareholderID?: number; grant: Omit<Grant, "id"> }>(
       "/grant/new",
@@ -130,6 +127,37 @@ export function getHandlers(
     rest.get("/shareholders", (req, res, ctx) => {
       return res(ctx.json(shareholders));
     }),
+
+    rest.get<Shareholder & { grantsData: (Grant & { value: number })[] }>(
+      "/shareholders/:shareholderID",
+      async (req, res, ctx) => {
+        const id = parseInt(req.params.shareholderID as string);
+
+        if (isNaN(id) || typeof id !== "number" || !shareholders[id]) {
+          return res(
+            ctx.status(404),
+            ctx.json({ status: 404, message: "Shareholder not found" })
+          );
+        }
+
+        const result: Shareholder & {
+          grantsData: (Grant & { value: number })[];
+        } = {
+          ...shareholders[id],
+          grantsData: shareholders[id].grants.map((id) => {
+            const grant = grants[id];
+
+            const valueScalar = company?.shareTypes[grant.type] ?? 1.0;
+            return {
+              ...grant,
+              value: grant.amount * valueScalar,
+            };
+          }),
+        };
+
+        return res(ctx.json(result));
+      }
+    ),
 
     rest.get("/company", (req, res, ctx) => {
       return res(ctx.json(company));

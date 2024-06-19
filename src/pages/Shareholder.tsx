@@ -1,5 +1,4 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Text,
   Heading,
@@ -29,26 +28,26 @@ import { NewGrantForm } from "../components/forms/NewGrantForm";
 export function ShareholderPage() {
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { shareholderID = ''} = useParams();
-  const grantQuery = useQuery<{ [dataID: number]: Grant }>("grants", () =>
-    fetch("/grants").then((e) => e.json())
-  );
-  const shareholderQuery = useQuery<{ [dataID: number]: Shareholder }>(
-    "shareholders",
-    () => fetch("/shareholders").then((e) => e.json())
-  );
-  // This is needed by candidates, and put here early so candidates don't get caught up on react-query
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const companyQuery = useQuery<Company>("company", () =>
-    fetch("/company").then((e) => e.json())
+  const { shareholderID = "" } = useParams();
+  const navigate = useNavigate();
+
+  const { data, isLoading } = useQuery<
+    Shareholder & { grantsData: (Grant & { value: number })[] },
+    { status: number; message: string }
+  >(
+    ["shareholders", shareholderID],
+    () => fetch("/shareholders/" + shareholderID).then((e) => e.json()),
+    {
+      keepPreviousData: true,
+      staleTime: 5 * 60 * 1000,
+      onSuccess: (data) => {
+        if ((data as any).status === 404) {
+          navigate("/dashboard", { replace: true });
+        }
+      },
+    }
   );
 
-  const [draftGrant, setDraftGrant] = React.useState<Omit<Grant, "id">>({
-    name: "",
-    amount: 0,
-    issued: "",
-    type: "common",
-  });
   const grantMutation = useMutation<Grant, unknown, Omit<Grant, "id">>(
     (grant) =>
       fetch("/grant/new", {
@@ -60,28 +59,13 @@ export function ShareholderPage() {
         }),
       }).then((res) => res.json()),
     {
-      onSuccess: (data) => {
-        // this doesn't seem to triggering an instant re-render on consumers even though thats that it should ...
-        /// https://github.com/tannerlinsley/react-query/issues/326
-        queryClient.setQueryData<{ [id: number]: Shareholder } | undefined>(
-          "shareholders",
-          (s) => {
-            if (s)
-              return produce(s, (draft) => {
-                draft[parseInt(shareholderID, 10)].grants.push(data.id);
-              });
-          }
-        );
-        queryClient.setQueriesData<{ [id: number]: Grant } | undefined>(
-          "grants",
-          (g) => {
-            if (g) {
-              return produce(g, (draft) => {
-                draft[data.id] = data;
-              });
-            }
-          }
-        );
+      onSuccess: (_) => {
+        queryClient.invalidateQueries("grants", {
+          exact: false,
+        });
+
+        queryClient.invalidateQueries("shareholders");
+        queryClient.invalidateQueries(["shareholders", shareholderID]);
       },
     }
   );
@@ -92,22 +76,11 @@ export function ShareholderPage() {
     });
   }
 
-  if (
-    grantQuery.status !== "success" ||
-    shareholderQuery.status !== "success"
-  ) {
+  if (isLoading) {
     return <Spinner />;
   }
-  if (!grantQuery.data || !shareholderQuery.data) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        <AlertTitle>Error: {grantQuery.error}</AlertTitle>
-      </Alert>
-    );
-  }
 
-  const shareholder = shareholderQuery.data[parseInt(shareholderID)];
+  const shareholder = data!;
 
   return (
     <Stack>
@@ -137,8 +110,8 @@ export function ShareholderPage() {
           </Text>
           <Text fontSize="sm" fontWeight="thin">
             <strong data-testid="shares-granted">
-              {shareholder.grants.reduce(
-                (acc, grantID) => acc + grantQuery.data[grantID].amount,
+                {shareholder.grantsData.reduce(
+                  (acc, grant) => acc + grant.amount,
                 0
               )}
             </strong>{" "}
@@ -160,20 +133,17 @@ export function ShareholderPage() {
           </Tr>
         </Thead>
         <Tbody role="rowgroup">
-          {shareholderQuery.data[parseInt(shareholderID, 10)].grants.map(
-            (grantID) => {
-              const { name, issued, amount, type } = grantQuery.data[grantID];
+              {shareholder.grantsData.map((grant) => {
               return (
-                <Tr key={grantID}>
-                  <Td>{name}</Td>
-                  <Td>{new Date(issued).toLocaleDateString()}</Td>
-                  <Td>{amount}</Td>
-                  <Td>{type}</Td>
-                  <Td></Td>
+                  <Tr key={grant.id}>
+                    <Td>{grant.name}</Td>
+                    <Td>{new Date(grant.issued).toLocaleDateString()}</Td>
+                    <Td>{grant.amount}</Td>
+                    <Td>{grant.type}</Td>
+                    <Td>{getFormattedCurrency(grant.value)}</Td>
                 </Tr>
               );
-            }
-          )}
+              })}
         </Tbody>
         <TableCaption>
           <Button colorScheme="teal" onClick={onOpen}>
