@@ -7,7 +7,7 @@ export function Navbar() {
   const { deauthroize } = useContext(AuthContext);
 
   return (
-    <Flex paddingBottom={4}>
+    <Flex paddingBottom={4} as="nav">
       <Link to="/dashboard">
         <Heading
           as="h1"
