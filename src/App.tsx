@@ -42,7 +42,7 @@ function App() {
         deauthroize: () => setUser(undefined),
       }}
     >
-      <Container paddingTop="16" paddingBottom="16">
+      <Container paddingTop="8" paddingBottom="16" maxW="768">
         <Routes>
           {user ? (
             <>
