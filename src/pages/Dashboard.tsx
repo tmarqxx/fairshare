@@ -221,7 +221,7 @@ function PieChart() {
       <Stack justify="space-between" divider={<StackDivider />}>
         <Stack>
           <Flex>
-            <Heading>Company Shares</Heading>
+            <Heading>Shares</Heading>
             <Spacer />
             <Flex alignItems="center">
               <FormControl display="inline-flex" alignItems="center">
@@ -229,6 +229,7 @@ function PieChart() {
                   Show equity value
                 </FormLabel>
                 <Switch
+                  size="lg"
                   id="byValue"
                   isChecked={isChecked}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
