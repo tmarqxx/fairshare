@@ -140,38 +140,35 @@ export function CompanyStep() {
         <FormLabel>
           What types of shares are available at this company?
         </FormLabel>
-        {Object.entries(shareTypes).map(([key, val], index) => (
-          <Stack direction="row" key={`sharetype-row-${index}`}>
-            <Input
-              data-testid={`sharetype-key-${index}`}
-              placeholder="Share type"
-              type="text"
-              value={key}
-              onChange={(e) =>
-                dispatch({
-                  type: "updateShareTypes",
-                  payload: { key, newKey: e.target.value },
-                })
-              }
-            />
-            <Input
-              type="number"
-              data-testid={`sharetype-value-${index}`}
-              placeholder="Value"
-              onChange={(e) => {
-                const float = parseFloat(e.target.value);
-                dispatch({
-                  type: "updateShareTypes",
-                  payload: {
-                    key,
-                    value: isNaN(float) ? "" : float,
-                  },
-                });
-              }}
-              value={val}
-            />
-          </Stack>
-        ))}
+        <Stack spacing="4">
+          {Object.entries(shareTypes).map(([key, val], index) => (
+            <Stack direction="row" key={`sharetype-row-${index}`}>
+              <Input
+                data-testid={`sharetype-key-${index}`}
+                placeholder="Share type"
+                type="text"
+                value={key}
+                isReadOnly
+              />
+              <Input
+                type="number"
+                data-testid={`sharetype-value-${index}`}
+                placeholder="Value"
+                onChange={(e) => {
+                  const float = parseFloat(e.target.value);
+                  dispatch({
+                    type: "updateShareTypes",
+                    payload: {
+                      key,
+                      value: isNaN(float) ? "" : float,
+                    },
+                  });
+                }}
+                value={val}
+              />
+            </Stack>
+          ))}
+        </Stack>
       </FormControl>
       <Button
         type="submit"
