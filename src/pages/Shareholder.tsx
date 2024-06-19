@@ -18,6 +18,7 @@ import {
   Flex,
   Spacer,
   Box,
+  Th,
 } from "@chakra-ui/react";
 import { ReactComponent as Avatar } from "../assets/avatar-male.svg";
 import { Grant, Shareholder } from "../types";
@@ -137,11 +138,11 @@ export function ShareholderPage() {
           <Table>
             <Thead>
               <Tr>
-                <Td fontWeight="bold">Occasion</Td>
-                <Td fontWeight="bold">Date</Td>
-                <Td fontWeight="bold">Amount</Td>
-                <Td fontWeight="bold">Type</Td>
-                <Td fontWeight="bold">Value</Td>
+                <Th color="black">Occasion</Th>
+                <Th color="black">Date</Th>
+                <Th color="black">Amount</Th>
+                <Th color="black">Type</Th>
+                <Th color="black">Value</Th>
               </Tr>
             </Thead>
             <Tbody role="rowgroup">

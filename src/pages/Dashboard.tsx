@@ -24,6 +24,7 @@ import {
   Spacer,
   Flex,
   ModalOverlay,
+  Th,
 } from "@chakra-ui/react";
 import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -106,12 +107,12 @@ export function Dashboard() {
           <Table>
             <Thead>
               <Tr>
-                <Td fontWeight="bold">Name</Td>
-                <Td fontWeight="bold">Group</Td>
-                <Td fontWeight="bold">Grants</Td>
-                <Td fontWeight="bold">Common Shares</Td>
-                <Td fontWeight="bold">Preferred Shares</Td>
-                <Td fontWeight="bold">Total Shares</Td>
+                <Th color="black">Name</Th>
+                <Th color="black">Group</Th>
+                <Th color="black">Grants</Th>
+                <Th color="black">Common Shares</Th>
+                <Th color="black">Preferred Shares</Th>
+                <Th color="black">Total Shares</Th>
               </Tr>
             </Thead>
             <Tbody>
