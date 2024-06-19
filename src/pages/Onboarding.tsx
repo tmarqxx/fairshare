@@ -68,8 +68,8 @@ export function UserStep() {
   }
 
   return (
-    <Stack as="form" onSubmit={onSubmt} spacing="4">
-      <FormControl id="userName" size="lg" color="teal.400">
+    <Stack as="form" onSubmit={onSubmt} spacing="4" maxW="768px">
+      <FormControl id="userName" color="teal.400">
         <FormLabel>First, who is setting up this account?</FormLabel>
         <Input
           type="text"
@@ -81,7 +81,7 @@ export function UserStep() {
           value={userName}
         />
       </FormControl>
-      <FormControl id="email" size="lg" color="teal.400">
+      <FormControl id="email" color="teal.400">
         <FormLabel>What email will you use to sign in?</FormLabel>
         <Input
           type="email"
@@ -123,8 +123,8 @@ export function CompanyStep() {
   }
 
   return (
-    <Stack as="form" onSubmit={onSubmit} spacing="4">
-      <FormControl id="companyName" size="lg" color="teal.400">
+    <Stack as="form" onSubmit={onSubmit} spacing="4" maxW="768px">
+      <FormControl id="companyName" color="teal.400">
         <FormLabel>What company are we examining?</FormLabel>
         <Input
           type="text"
@@ -136,7 +136,7 @@ export function CompanyStep() {
         />
       </FormControl>
 
-      <FormControl id="shareTypes" size="lg" color="teal.400">
+      <FormControl id="shareTypes" color="teal.400">
         <FormLabel>
           What types of shares are available at this company?
         </FormLabel>
@@ -197,12 +197,12 @@ export function ShareholdersStep() {
   }
 
   return (
-    <Stack>
+    <Stack spacing="4" maxW="768px">
       <Text color="teal.400">
         {/* TODO: redirect to previous step if company name isn't there*/}
         Who are <strong>{companyName}</strong>'s shareholders?
       </Text>
-      <Stack divider={<StackDivider borderColor="teal-200" />}>
+      <Stack divider={<StackDivider />}>
         {Object.values(shareholders).map((s, i) => (
           <Stack justify="space-between" direction="row" key={i}>
             <Text data-testid={`shareholder-${s.name}-name`}>{s.name}</Text>
@@ -244,7 +244,6 @@ export function ShareholderGrantsStep() {
     : `../grants/${shareholder.id + 1}`;
 
   function submitGrant(formValues: Omit<Grant, "id">) {
-    console.log("formValues", formValues);
     dispatch({
       type: "addGrant",
       payload: {
@@ -256,17 +255,17 @@ export function ShareholderGrantsStep() {
   }
 
   return (
-    <Stack>
-      <Text color="teal-400">
+    <Stack spacing="4" maxW="768px">
+      <Text color="teal.400">
         What grants does <strong>{shareholder.name}</strong> have?
       </Text>
-      <Table size="sm">
+      <Table>
         <Thead>
           <Tr>
-            <Th>Occasion</Th>
-            <Th>Amount</Th>
-            <Th>Date</Th>
-            <Th></Th>
+            <Th color="black">Occasion</Th>
+            <Th color="black">Amount</Th>
+            <Th color="black">Type</Th>
+            <Th color="black">Date</Th>
           </Tr>
         </Thead>
         <Tbody role="rowgroup">
@@ -275,7 +274,7 @@ export function ShareholderGrantsStep() {
               <Td>{grants[gid].name}</Td>
               <Td>{grants[gid].amount}</Td>
               <Td>{grants[gid].type}</Td>
-              <Td>{grants[gid].issued}</Td>
+              <Td>{new Date(grants[gid].issued).toLocaleDateString()}</Td>
             </Tr>
           ))}
           {shareholder.grants.length === 0 && (
@@ -287,7 +286,7 @@ export function ShareholderGrantsStep() {
           )}
         </Tbody>
       </Table>
-      <Button variant="outline" onClick={onOpen}>
+      <Button colorScheme="teal" variant="outline" onClick={onOpen}>
         Add Grant
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -297,7 +296,7 @@ export function ShareholderGrantsStep() {
         </ModalContent>
       </Modal>
       <Button as={Link} to={nextLink} colorScheme="teal">
-        Next
+        {nextLink === "../done" ? "Finish" : "Next"}
       </Button>
     </Stack>
   );
@@ -523,10 +522,8 @@ export function Start() {
 
   return (
     <OnboardingContext.Provider value={{ ...state, dispatch }}>
-      <Stack direction="column" alignItems="center" spacing="10">
-        <Heading size="2x1" color="teal.400">
-          Lets get started.
-        </Heading>
+      <Stack direction="column" alignItems="center" spacing="10" maxW="768px">
+        <Heading>Lets get started.</Heading>
         <Routes>
           <Route path="/" element={<Navigate to="user" replace={true} />} />
           <Route path="user" element={<UserStep />} />
