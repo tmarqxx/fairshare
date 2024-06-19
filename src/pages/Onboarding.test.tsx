@@ -255,5 +255,37 @@ describe("Onboarding", () => {
     expect(textIndicator).not.toBeInTheDocument();
   }, 10000);
 
-  it.todo("should persist onboard config");
+  it("should persist onboard config", async () => {
+    const searchParams = new URLSearchParams({
+      userName: "Tonya",
+      email: "tonya@email.com",
+      companyName: "Tonya's Tech",
+    });
+
+    let Router = getTestRouter("/shareholders?" + searchParams.toString());
+    render(
+      <Router>
+        <Start />
+      </Router>,
+      { wrapper: ThemeWrapper }
+    );
+
+    expect(screen.getByText("Tonya's Tech")).toBeInTheDocument();
+    expect(screen.getByTestId("shareholder-Tonya-name")).toHaveTextContent(
+      "Tonya"
+    );
+    expect(screen.getByTestId("shareholder-Tonya-group")).toHaveTextContent(
+      "founder"
+    );
+
+    Router = getTestRouter("/grants?" + searchParams.toString());
+    render(
+      <Router>
+        <Start />
+      </Router>,
+      { wrapper: ThemeWrapper }
+    );
+
+    expect(screen.getByText("Tonya")).toBeInTheDocument();
+  });
 });

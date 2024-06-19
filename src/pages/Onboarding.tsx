@@ -6,6 +6,7 @@ import {
   Navigate,
   useParams,
   useNavigate,
+  useSearchParams,
 } from "react-router-dom";
 import {
   Text,
@@ -48,12 +49,19 @@ export const OnboardingContext = React.createContext<
 });
 
 export function UserStep() {
+  const [searchParams] = useSearchParams();
+
   const { userName, email, dispatch } = useContext(OnboardingContext);
   const navigate = useNavigate();
 
   function onSubmt(e: React.FormEvent) {
     e.preventDefault();
-    navigate("../company");
+    searchParams.set("userName", userName);
+    searchParams.set("email", email);
+    navigate({
+      pathname: "/start/company",
+      search: searchParams.toString(),
+    });
   }
 
   return (
@@ -63,6 +71,7 @@ export function UserStep() {
         <Input
           type="text"
           placeholder="Your Name"
+          data-testid="user-username"
           onChange={(e) =>
             dispatch({ type: "updateUser", payload: e.target.value })
           }
@@ -74,6 +83,7 @@ export function UserStep() {
         <Input
           type="email"
           placeholder="Your Email"
+          data-testid="user-email"
           onChange={(e) =>
             dispatch({ type: "updateEmail", payload: e.target.value })
           }
@@ -95,12 +105,17 @@ export function UserStep() {
 }
 
 export function CompanyStep() {
-  const { companyName, dispatch } = useContext(OnboardingContext);
+  const [searchParams] = useSearchParams();
+  const { companyName, shareTypes, dispatch } = useContext(OnboardingContext);
   const navigate = useNavigate();
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    navigate("/start/shareholders");
+    searchParams.set("companyName", companyName);
+    navigate({
+      pathname: "/start/shareholders",
+      search: searchParams.toString(),
+    });
   }
 
   return (
@@ -124,6 +139,7 @@ export function CompanyStep() {
 }
 
 export function ShareholdersStep() {
+  const [searchParams] = useSearchParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { shareholders, companyName, dispatch } = useContext(OnboardingContext);
   const [newShareholder, setNewShareholder] = React.useState<
@@ -146,8 +162,8 @@ export function ShareholdersStep() {
       <Stack divider={<StackDivider borderColor="teal-200" />}>
         {Object.values(shareholders).map((s, i) => (
           <Stack justify="space-between" direction="row" key={i}>
-            <Text>{s.name}</Text>
-            <Badge>{s.group}</Badge>
+            <Text data-testid={`shareholder-${s.name}-name`}>{s.name}</Text>
+            <Badge data-testid={`shareholder-${s.name}-group`}>{s.group}</Badge>
           </Stack>
         ))}
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -185,7 +201,11 @@ export function ShareholdersStep() {
       <Button colorScheme="teal" variant="outline" onClick={onOpen}>
         Add Shareholder
       </Button>
-      <Button as={Link} to="/start/grants" colorScheme="teal">
+      <Button
+        as={Link}
+        to={{ pathname: "/start/grants", search: searchParams.toString() }}
+        colorScheme="teal"
+      >
         Next
       </Button>
     </Stack>
@@ -194,7 +214,7 @@ export function ShareholdersStep() {
 
 export function ShareholderGrantsStep() {
   const { shareholders, grants, dispatch } = useContext(OnboardingContext);
-  const { shareholderID = '' } = useParams();
+  const { shareholderID = "" } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const shareholder = shareholders[parseInt(shareholderID, 10)];
 
@@ -240,7 +260,7 @@ export function ShareholderGrantsStep() {
             <Th></Th>
           </Tr>
         </Thead>
-        <Tbody>
+        <Tbody role="rowgroup">
           {shareholder.grants.map((gid) => (
             <Tr key={gid}>
               <Td>{grants[gid].name}</Td>
@@ -359,12 +379,12 @@ export function DoneStep() {
 
   React.useEffect(() => {
     async function saveData() {
-      let user
+      let user;
       try {
         user = await userMutation.mutateAsync({ email, name: userName });
       } catch (error) {
-        console.error(error)
-        return
+        console.error(error);
+        return;
       }
       
       await Promise.all([
@@ -382,7 +402,7 @@ export function DoneStep() {
         navigate("/dashboard");
       } else {
         // Something bad happened.
-        console.log("Something bad happened")
+        console.log("Something bad happened");
       }
     }
 
@@ -485,11 +505,29 @@ export function signupReducer(
   });
 }
 export function Start() {
+  const [searchParams] = useSearchParams();
   const [state, dispatch] = React.useReducer(signupReducer, {
-    userName: "",
-    email: "",
-    companyName: "",
-    shareholders: {},
+    userName: searchParams.get("userName") ?? "",
+    email: searchParams.get("email") ?? "",
+    companyName: searchParams.get("companyName") ?? "",
+    shareTypes: searchParams.has("shareTypes")
+      ? (JSON.parse(
+          searchParams.get("shareTypes") ?? ""
+        ) as unknown as OnboardingFields["shareTypes"])
+      : {
+          common: undefined,
+          preferred: undefined,
+        },
+    shareholders: searchParams.has("userName")
+      ? {
+          0: {
+            id: 0,
+            name: searchParams.get("userName") as string,
+            grants: [],
+            group: "founder",
+          },
+        }
+      : {},
     grants: {},
   });
 
@@ -506,7 +544,14 @@ export function Start() {
           <Route path="shareholders" element={<ShareholdersStep />} />
           <Route
             path="grants"
-            element={<Navigate to={`/start/grants/0`} replace={true} />}
+            element={
+              <Navigate
+                to={{
+                  pathname: `/start/grants/0`,
+                  search: searchParams.toString(),
+                }}
+              />
+            }
           />
           <Route
             path="grants/:shareholderID"
