@@ -4,26 +4,27 @@ import {
   Heading,
   Stack,
   Button,
-  Input,
   Table,
   Thead,
   Tr,
   Tbody,
   Td,
-  FormControl,
   Modal,
   useDisclosure,
   ModalContent,
   Spinner,
-  Alert,
-  AlertTitle,
-  AlertIcon,
   TableCaption,
+  StackDivider,
+  Flex,
+  Spacer,
+  Box,
 } from "@chakra-ui/react";
 import { ReactComponent as Avatar } from "../assets/avatar-male.svg";
-import { Company, Grant, Shareholder } from "../types";
+import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { NewGrantForm } from "../components/forms/NewGrantForm";
+import { getFormattedCurrency } from "../utils";
+import { Navbar } from "../components/forms/Navbar";
 
 export function ShareholderPage() {
   const queryClient = useQueryClient();
@@ -89,9 +90,13 @@ export function ShareholderPage() {
       <Stack direction="row" spacing="8">
         <Avatar width="100px" height="auto" />
         <Stack>
-          <Text fontSize="xl" fontWeight="bold">
-            {shareholder.name}
-          </Text>
+          <Heading>{shareholder.name}</Heading>
+          <Stack
+            direction="row"
+            justify="space-between"
+            gap="4"
+            flexWrap="wrap"
+          >
           <Text fontSize="sm" fontWeight="thin">
             <strong data-testid="grants-issued">
               {shareholder.grants.length}
@@ -107,19 +112,36 @@ export function ShareholderPage() {
             </strong>{" "}
             shares
           </Text>
+            <Text fontSize="sm" fontWeight="thin">
+              <strong data-testid="shares-total-value">
+                {getFormattedCurrency(
+                  shareholder.grantsData.reduce(
+                    (acc, grant) => acc + grant.value,
+                    0
+                  )
+                )}
+              </strong>{" "}
+              total value
+            </Text>
+          </Stack>
         </Stack>
       </Stack>
-      <Heading size="md" textAlign="center">
-        Grants
-      </Heading>
-      <Table size="s">
+
+      <Stack divider={<StackDivider />} paddingTop="10">
+        <Flex>
+          <Heading>Grants</Heading>
+          <Spacer />
+          <Button onClick={onOpen}>Add Grant</Button>
+        </Flex>
+        <Box style={{ width: "100%", maxWidth: 736, overflow: "auto" }}>
+          <Table>
         <Thead>
           <Tr>
-            <Td>Occasion</Td>
-            <Td>Date</Td>
-            <Td>Amount</Td>
-            <Td>Class</Td>
-            <Td>Value</Td>
+                <Td fontWeight="bold">Occasion</Td>
+                <Td fontWeight="bold">Date</Td>
+                <Td fontWeight="bold">Amount</Td>
+                <Td fontWeight="bold">Type</Td>
+                <Td fontWeight="bold">Value</Td>
           </Tr>
         </Thead>
         <Tbody role="rowgroup">
@@ -135,12 +157,9 @@ export function ShareholderPage() {
               );
               })}
         </Tbody>
-        <TableCaption>
-          <Button colorScheme="teal" onClick={onOpen}>
-            Add Grant
-          </Button>
-        </TableCaption>
       </Table>
+        </Box>
+      </Stack>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <NewGrantForm onSubmit={submitGrant} />
