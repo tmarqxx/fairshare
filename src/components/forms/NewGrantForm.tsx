@@ -48,9 +48,8 @@ export function NewGrantForm(props: TNewGrantFormProps) {
           to a shareholder.
         </Text>
 
-        <FormControl isRequired>
+        <FormControl id="grantName" isRequired>
           <Input
-            variant="flushed"
             placeholder="Name"
             data-testid="grant-name"
             value={draftGrant.name}
@@ -59,9 +58,8 @@ export function NewGrantForm(props: TNewGrantFormProps) {
             }
           />
         </FormControl>
-        <FormControl isRequired>
+        <FormControl id="grantAmount" isRequired>
           <Input
-            variant="flushed"
             placeholder="Shares"
             data-testid="grant-amount"
             type="number"
@@ -74,9 +72,8 @@ export function NewGrantForm(props: TNewGrantFormProps) {
             }
           />
         </FormControl>
-        <FormControl isRequired>
+        <FormControl id="grantType" isRequired>
           <Select
-            variant="flushed"
             placeholder="Type of shares"
             data-testid="grant-type"
             value={draftGrant.type}
@@ -91,9 +88,8 @@ export function NewGrantForm(props: TNewGrantFormProps) {
             <option value="preferred">Preferred</option>
           </Select>
         </FormControl>
-        <FormControl isRequired>
+        <FormControl id="grantIssued" isRequired>
           <Input
-            variant="flushed"
             type="date"
             data-testid="grant-issued"
             value={draftGrant.issued}
