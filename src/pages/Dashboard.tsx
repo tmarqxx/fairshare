@@ -23,6 +23,7 @@ import {
   Box,
   Spacer,
   Flex,
+  ModalOverlay,
 } from "@chakra-ui/react";
 import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";

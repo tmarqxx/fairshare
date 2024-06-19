@@ -13,7 +13,7 @@ import {
   useDisclosure,
   ModalContent,
   Spinner,
-  TableCaption,
+  ModalOverlay,
   StackDivider,
   Flex,
   Spacer,
@@ -161,6 +161,7 @@ export function ShareholderPage() {
         </Box>
       </Stack>
       <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
         <ModalContent>
           <NewGrantForm onSubmit={submitGrant} />
         </ModalContent>

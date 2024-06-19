@@ -29,6 +29,7 @@ import {
   FormHelperText,
   Spinner,
   Badge,
+  ModalOverlay,
 } from "@chakra-ui/react";
 import produce from "immer";
 import { useContext } from "react";
@@ -212,6 +213,7 @@ export function ShareholdersStep() {
           </Stack>
         ))}
         <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
           <ModalContent>
             <NewShareholderForm onSubmit={submitNewShareholder} />
           </ModalContent>
@@ -292,6 +294,7 @@ export function ShareholderGrantsStep() {
         Add Grant
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
         <ModalContent>
           <NewGrantForm onSubmit={submitGrant} />
         </ModalContent>
