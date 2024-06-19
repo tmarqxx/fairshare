@@ -1,5 +1,11 @@
 import React from "react";
-import { render, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import {
   CompanyStep,
   OnboardingContext,

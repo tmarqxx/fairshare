@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { getTestRouter, server, ThemeWrapper } from "../testutils";
 import { Dashboard } from "./Dashboard";
 import { Route, Routes } from "react-router";

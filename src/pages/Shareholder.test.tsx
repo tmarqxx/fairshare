@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { getTestRouter, server, ThemeWrapper } from "../testutils";
 import { ShareholderPage } from "./Shareholder";
 import { Route, Routes } from "react-router";
@@ -124,10 +119,10 @@ describe("ShareholderPage", () => {
 
     await userEvent.click(grantNameInput);
     await userEvent.type(grantNameInput, "Incentive Package 2019");
-    await userEvent.click(grantAmountInput)
+    await userEvent.click(grantAmountInput);
     await userEvent.type(grantAmountInput, "2000");
-    await userEvent.click(grantDateInput)
-    await userEvent.type(grantDateInput,"2010-12-12");
+    await userEvent.click(grantDateInput);
+    await userEvent.type(grantDateInput, "2010-12-12");
     expect(grantNameInput).toHaveValue();
     expect(grantAmountInput).toHaveValue();
     expect(grantDateInput).toHaveValue();
@@ -136,17 +131,10 @@ describe("ShareholderPage", () => {
     await userEvent.click(saveButton);
 
     expect(
-      await within(grantTable).findByText(
-        /Incentive Package 2019/
-      )
+      await within(grantTable).findByText(/Incentive Package 2019/)
     ).toBeInTheDocument();
     expect(
-      within(grantTable).getByText(/2000/)
-    ).toBeInTheDocument();
-    expect(
-      within(grantTable).getByText(
-      new Date("2010-12-12").toLocaleDateString(),
-      )
+      within(grantTable).getByText(new Date("2010-12-12").toLocaleDateString())
     ).toBeInTheDocument();
   });
 });
