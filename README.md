@@ -37,6 +37,7 @@ Welcome to Admiral! We have pivoted, and now our product is an equity sharing ap
 **General changes**
 
 - [x] Fix broken/failing tests
+- [x] Better utilize React Query for request deduplication, query caching and invalidation, etc.
 - [x] Migrate from ReactDOM.render to createRoot
 - [x] Add ModalOverlay to all modals for extra clarity
 - [x] Make colors, text, spacing, UI elements, etc. more consistent across pages
