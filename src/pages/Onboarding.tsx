@@ -143,7 +143,7 @@ export function CompanyStep() {
         {Object.entries(shareTypes).map(([key, val], index) => (
           <Stack direction="row" key={`sharetype-row-${index}`}>
             <Input
-              id={`sharetype-${key}-label`}
+              data-testid={`sharetype-key-${index}`}
               placeholder="Share type"
               type="text"
               value={key}
@@ -156,7 +156,7 @@ export function CompanyStep() {
             />
             <Input
               type="number"
-              data-testid={`sharetype-${key}-input`}
+              data-testid={`sharetype-value-${index}`}
               placeholder="Value"
               onChange={(e) => {
                 const float = parseFloat(e.target.value);
