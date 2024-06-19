@@ -83,19 +83,9 @@ export function ShareholderPage() {
   const shareholder = data!;
 
   return (
-    <Stack>
-      <Stack direction="row" justify="space-between" alignItems="baseline">
-        <Heading
-          size="md"
-          bgGradient="linear(to-br, teal.400, teal.100)"
-          bgClip="text"
-        >
-          Fair Share
-        </Heading>
-      </Stack>
-      <Heading size="md" textAlign="center">
-        Shareholder
-      </Heading>
+    <Stack spacing="0.75rem">
+      <Navbar />
+
       <Stack direction="row" spacing="8">
         <Avatar width="100px" height="auto" />
         <Stack>

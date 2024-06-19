@@ -1,6 +1,6 @@
-import React from "react";
-import { VictoryPie } from "victory";
-import { Link, useParams } from "react-router-dom";
+import { ChangeEvent, useMemo } from "react";
+import { VictoryContainer, VictoryPie } from "victory";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   Text,
@@ -27,6 +27,7 @@ import { Grant, Shareholder } from "../types";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import produce from "immer";
 import { NewShareholderForm } from "../components/forms/NewShareholderForm";
+import { Navbar } from "../components/forms/Navbar";
 
 export function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -125,40 +126,11 @@ export function Dashboard() {
   }
 
   return (
-    <Stack>
-      <Stack direction="row" justify="space-between" alignItems="baseline">
-        <Heading
-          size="md"
-          bgGradient="linear(to-br, teal.400, teal.100)"
-          bgClip="text"
-        >
-          Fair Share
-        </Heading>
-        <Stack direction="row">
-          <Button
-            colorScheme="teal"
-            as={Link}
-            to="/dashboard/investor"
-            variant="ghost"
-            isActive={mode === "investor"}
-          >
-            By Investor
-          </Button>
-          <Button
-            colorScheme="teal"
-            as={Link}
-            to="/dashboard/group"
-            variant="ghost"
-            isActive={mode === "group"}
-          >
-            By Group
-          </Button>
-        </Stack>
-      </Stack>
-      <VictoryPie
-        colorScale="blue"
-        data={mode === "investor" ? getInvestorData() : getGroupData()}
-      />
+    <Stack spacing="0.75rem">
+      <Navbar />
+
+      <PieChart />
+
       <Stack divider={<StackDivider />}>
         <Heading>Shareholders</Heading>
         <Table>
@@ -205,5 +177,137 @@ export function Dashboard() {
         </Modal>
       </Stack>
     </Stack>
+  );
+}
+function PieChart() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { mode } = useParams();
+
+  const isChecked = searchParams.get("byValue") === "true";
+
+  const stats = useQuery(
+    ["grants", mode, isChecked],
+    () =>
+      fetch("/grants/" + mode + "?" + searchParams.toString()).then((e) =>
+        e.json()
+      ),
+    {
+      keepPreviousData: true,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+
+  return (
+    <>
+      <Stack justify="space-between" divider={<StackDivider />}>
+        <Stack>
+          <Flex>
+            <Heading>Company Shares</Heading>
+            <Spacer />
+            <Flex alignItems="center">
+              <FormControl display="inline-flex" alignItems="center">
+                <FormLabel htmlFor="byValue" mb="0">
+                  Show equity value
+                </FormLabel>
+                <Switch
+                  id="byValue"
+                  isChecked={isChecked}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    setSearchParams((params) => ({
+                      ...params,
+                      byValue: e.target.checked,
+                    }));
+                  }}
+                />
+              </FormControl>
+            </Flex>
+          </Flex>
+        </Stack>
+
+        <Stack>
+          <Flex flexWrap="wrap">
+            <Stack direction="row">
+              <Button
+                colorScheme="teal"
+                as={Link}
+                to={{
+                  pathname: "/dashboard/investor",
+                  search: searchParams.toString(),
+                }}
+                variant="ghost"
+                isActive={mode === "investor"}
+              >
+                By Investor
+              </Button>
+              <Button
+                colorScheme="teal"
+                as={Link}
+                to={{
+                  pathname: "/dashboard/group",
+                  search: searchParams.toString(),
+                }}
+                variant="ghost"
+                isActive={mode === "group"}
+              >
+                By Group
+              </Button>
+              <Button
+                colorScheme="teal"
+                as={Link}
+                to={{
+                  pathname: "/dashboard/sharetype",
+                  search: searchParams.toString(),
+                }}
+                variant="ghost"
+                isActive={mode === "sharetype"}
+              >
+                By Share Type
+              </Button>
+            </Stack>
+            <Spacer />
+          </Flex>
+          <Flex justifyContent="center" height={400}>
+            {!stats.isLoading && (
+              <VictoryPie
+                containerComponent={
+                  <VictoryContainer style={{ maxWidth: 400 }} />
+                }
+                style={{
+                  data: {
+                    fillOpacity: 0.75,
+                    stroke: "white",
+                    strokeWidth: 3,
+                  },
+                  labels: {
+                    fontSize: 16,
+                    fontWeight: 700,
+                  },
+                }}
+                colorScale={[
+                  "#0B4C43",
+                  "#488A81",
+                  "#246B61",
+                  "#7EAFA8",
+                  "#002D27",
+                ]}
+                innerRadius={50}
+                labelRadius={100}
+                labels={({ datum }) => {
+                  let yVal = datum.y;
+                  if (isChecked) {
+                    yVal = new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    }).format(yVal);
+                  }
+                  return [datum.x, yVal];
+                }}
+                data={stats.data}
+              />
+            )}
+          </Flex>
+        </Stack>
+      </Stack>
+    </>
   );
 }
