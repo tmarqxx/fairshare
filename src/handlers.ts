@@ -50,8 +50,14 @@ export function getHandlers(
       return res(ctx.json(user));
     }),
 
-    rest.post<Company, Company>("/company/new", (req, res, ctx) => {
-      company = req.body;
+    rest.post<Company>("/company/new", async (req, res, ctx) => {
+      company = await req.json();
+
+      if (!company) {
+        return res(ctx.json(new Error("Invalid input")));
+      }
+      const shareTypes = Object.fromEntries(company?.shareTypes as any);
+      company["shareTypes"] = shareTypes as any;
       return res(ctx.json(company));
     }),
 

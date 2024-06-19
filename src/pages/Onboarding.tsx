@@ -43,6 +43,7 @@ export const OnboardingContext = React.createContext<
   userName: "",
   email: "",
   companyName: "",
+  shareTypes: { common: undefined, preferred: undefined },
   shareholders: {},
   grants: {},
   dispatch: () => {},
@@ -112,6 +113,7 @@ export function CompanyStep() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     searchParams.set("companyName", companyName);
+    searchParams.set("shareTypes", JSON.stringify(shareTypes));
     navigate({
       pathname: "/start/shareholders",
       search: searchParams.toString(),
@@ -131,7 +133,52 @@ export function CompanyStep() {
           value={companyName}
         />
       </FormControl>
-      <Button type="submit" colorScheme="teal" isDisabled={!companyName.length}>
+
+      <FormControl id="shareTypes" size="lg" color="teal.400">
+        <FormLabel>
+          What types of shares are available at this company?
+        </FormLabel>
+        {Object.entries(shareTypes).map(([key, val], index) => (
+          <Stack direction="row" key={`sharetype-row-${index}`}>
+            <Input
+              id={`sharetype-${key}-label`}
+              placeholder="Share type"
+              type="text"
+              value={key}
+              onChange={(e) =>
+                dispatch({
+                  type: "updateShareTypes",
+                  payload: { key, newKey: e.target.value },
+                })
+              }
+            />
+            <Input
+              type="number"
+              data-testid={`sharetype-${key}-input`}
+              placeholder="Value"
+              onChange={(e) => {
+                const float = parseFloat(e.target.value);
+                dispatch({
+                  type: "updateShareTypes",
+                  payload: {
+                    key,
+                    value: isNaN(float) ? "" : float,
+                  },
+                });
+              }}
+              value={val}
+            />
+          </Stack>
+        ))}
+      </FormControl>
+      <Button
+        type="submit"
+        colorScheme="teal"
+        isDisabled={
+          !companyName.length ||
+          Object.entries(shareTypes).some(([key, val]) => !key || !val)
+        }
+      >
         Next
       </Button>
     </Stack>
@@ -265,6 +312,7 @@ export function ShareholderGrantsStep() {
             <Tr key={gid}>
               <Td>{grants[gid].name}</Td>
               <Td>{grants[gid].amount}</Td>
+              <Td>{grants[gid].type}</Td>
               <Td>{grants[gid].issued}</Td>
             </Tr>
           ))}
@@ -339,7 +387,7 @@ export function DoneStep() {
   const { authorize } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { email, userName, companyName, shareholders, grants } =
+  const { email, userName, companyName, shareTypes, shareholders, grants } =
     useContext(OnboardingContext);
 
   const grantMutation = useMutation<Grant, unknown, Grant>((grant) =>
@@ -394,7 +442,10 @@ export function DoneStep() {
         ...Object.values(shareholders).map((shareholder) =>
           shareholderMutation.mutateAsync(shareholder)
         ),
-        companyMutation.mutateAsync({ name: companyName }),
+        companyMutation.mutateAsync({
+          name: companyName,
+          shareTypes,
+        }),
       ]);
 
       if (user) {
@@ -419,6 +470,7 @@ export function DoneStep() {
 }
 export interface OnboardingFields {
   companyName: string;
+  shareTypes: Record<string, number | undefined>;
   userName: string;
   email: string;
   shareholders: { [shareholderID: number]: Shareholder };
@@ -436,6 +488,14 @@ interface UpdateCompanyAction {
   type: "updateCompany";
   payload: string;
 }
+interface UpdateShareTypesAction {
+  type: "updateShareTypes";
+  payload: {
+    key: string;
+    newKey?: string;
+    value?: string | number;
+  };
+}
 interface AddShareholderAction {
   type: "addShareholder";
   payload: Omit<Shareholder, "id" | "grants">;
@@ -448,6 +508,7 @@ type OnboardingAction =
   | UpdateUserAction
   | UpdateEmail
   | UpdateCompanyAction
+  | UpdateShareTypesAction
   | AddShareholderAction
   | AddGrant;
 export function signupReducer(
@@ -474,6 +535,15 @@ export function signupReducer(
         break;
       case "updateCompany":
         draft.companyName = action.payload;
+        break;
+      case "updateShareTypes":
+        if (typeof action.payload.newKey === "string") {
+          draft.shareTypes[action.payload.newKey] =
+            draft.shareTypes[action.payload.key];
+          delete draft.shareTypes[action.payload.key];
+        } else {
+          draft.shareTypes[action.payload.key] = action.payload.value as number;
+        }
         break;
       case "addShareholder":
         const nextShareholderID =

@@ -16,7 +16,10 @@ describe("Dashboard", () => {
     const Router = getTestRouter("/dashboard");
     const handlers = getHandlers(
       {
-        company: { name: "My Company" },
+        company: {
+          name: "My Company",
+          shareTypes: { common: 1.0, preferred: 1.5 },
+        },
         shareholders: {
           0: { name: "Tonya", grants: [1, 2], group: "founder", id: 0 },
           1: { name: "Tony", grants: [3], group: "employee", id: 1 },
@@ -128,7 +131,10 @@ describe("Dashboard", () => {
     const Router = getTestRouter("/dashboard/investor");
     const handlers = getHandlers(
       {
-        company: { name: "My Company" },
+        company: {
+          name: "My Company",
+          shareTypes: { common: 1.0, preferred: 1.5 },
+        },
         shareholders: {
           0: { name: "Tonya", grants: [1, 2], group: "founder", id: 0 },
           1: { name: "Tommy", grants: [3], group: "employee", id: 1 },
@@ -197,7 +203,10 @@ describe("Dashboard", () => {
     const Router = getTestRouter("/dashboard/investor");
     const handlers = getHandlers(
       {
-        company: { name: "My Company" },
+        company: {
+          name: "My Company",
+          shareTypes: { common: 1.0, preferred: 1.5 },
+        },
         shareholders: {
           0: { name: "Tonya", grants: [1, 2], group: "founder", id: 0 },
           3: { name: "Timothy", grants: [6], group: "investor", id: 3 },
@@ -253,7 +262,10 @@ describe("Dashboard", () => {
     const Router = getTestRouter("/dashboard");
     const handlers = getHandlers(
       {
-        company: { name: "My Company" },
+        company: {
+          name: "My Company",
+          shareTypes: { common: 1.0, preferred: 1.5 },
+        },
         shareholders: {
           0: { name: "Tonya", grants: [1, 2], group: "founder", id: 0 },
         },

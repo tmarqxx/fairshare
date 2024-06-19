@@ -17,6 +17,7 @@ const defaultOnboardingState = {
   userName: "",
   email: "",
   companyName: "",
+  shareTypes: { common: undefined, preferred: undefined },
   shareholders: {},
   grants: {},
 };
@@ -65,12 +66,12 @@ describe("Onboarding", () => {
     );
 
     const nameField = screen.getByRole("textbox", { name: /who is setting/ });
-    await userEvent.click(nameField)
+    await userEvent.click(nameField);
     await userEvent.type(nameField, "Terry");
     expect(nameField).toHaveValue("Terry");
 
     const emailField = screen.getByRole("textbox", { name: /email/ });
-    await userEvent.click(emailField)
+    await userEvent.click(emailField);
     await userEvent.type(emailField, "great@email.com");
     expect(emailField).toHaveValue("great@email.com");
 
@@ -107,6 +108,7 @@ describe("Onboarding", () => {
           initialState={{
             ...defaultOnboardingState,
             companyName: "My Company",
+            shareTypes: { common: 2.0, preferred: 4.0 },
             shareholders: {
               "0": { name: "Jenn", group: "founder", grants: [], id: 0 },
             },
@@ -135,7 +137,7 @@ describe("Onboarding", () => {
     await userEvent.selectOptions(groupPicker, "founder");
     await userEvent.click(createButton);
 
-    await waitForElementToBeRemoved(newShareholderNameField)
+    await waitForElementToBeRemoved(newShareholderNameField);
     expect(screen.getByText("Anne")).toBeInTheDocument();
 
     await userEvent.click(addShareholdersButton);
@@ -163,6 +165,7 @@ describe("Onboarding", () => {
           initialState={{
             ...defaultOnboardingState,
             companyName: "My Company",
+            shareTypes: { common: 2.0, preferred: 4.0 },
             shareholders: {
               0: { name: "Jenn", group: "founder", grants: [1], id: 0 },
               1: { name: "Aaron", group: "employee", grants: [], id: 1 },
@@ -201,7 +204,7 @@ describe("Onboarding", () => {
     await userEvent.paste("2020 Incentive");
     await userEvent.click(grantAmountInput);
     await userEvent.type(grantAmountInput, "2000");
-    expect(grantAmountInput).toHaveValue("2000")
+    expect(grantAmountInput).toHaveValue(2000);
     await userEvent.click(grantDateInput);
     await userEvent.paste(Date.now().toLocaleString());
 

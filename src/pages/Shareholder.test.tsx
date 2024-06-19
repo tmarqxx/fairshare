@@ -16,7 +16,10 @@ describe("ShareholderPage", () => {
     const Router = getTestRouter("/shareholder/0");
     const handlers = getHandlers(
       {
-        company: { name: "My Company" },
+        company: {
+          name: "My Company",
+          shareTypes: { common: 1.0, preferred: 1.5 },
+        },
         shareholders: {
           0: { name: "Tonya", grants: [1, 2], group: "founder", id: 0 },
         },
@@ -63,7 +66,10 @@ describe("ShareholderPage", () => {
     const Router = getTestRouter("/shareholder/0");
     const handlers = getHandlers(
       {
-        company: { name: "My Company" },
+        company: {
+          name: "My Company",
+          shareTypes: { common: 1.0, preferred: 1.5 },
+        },
         shareholders: {
           0: { name: "Tonya", grants: [1, 2], group: "founder", id: 0 },
         },
