@@ -57,8 +57,8 @@ export function getHandlers(
 
   return [
     // Yes, this is a passwordless login
-    rest.post<{ email: string }>("/signin", (req, res, ctx) => {
-      const { email } = req.body;
+    rest.post<{ email: string }>("/signin", async (req, res, ctx) => {
+      const { email } = await req.json();
       const user = Object.values(users).find((user) => user.email === email);
       if (!user) {
         return res(ctx.status(401));
@@ -78,36 +78,39 @@ export function getHandlers(
       return res(ctx.json(company));
     }),
 
-    rest.post<Omit<Shareholder, "id">>("/shareholder/new", (req, res, ctx) => {
-      const { name, email, grants = [], group } = req.body;
-      const shareholder: Shareholder = {
-        name,
-        email,
-        grants,
-        id: nextID(shareholders),
-        group,
-      };
-      shareholders[shareholder.id] = shareholder;
-      if (email) {
-        const existingUser = users[email];
-        if (existingUser.shareholderID) {
-          // User already has a shareholder ID
-          console.error("User already has a shareholder ID");
-          return res(ctx.status(400));
+    rest.post<Omit<Shareholder, "id">>(
+      "/shareholder/new",
+      async (req, res, ctx) => {
+        const { name, email, grants = [], group } = await req.json();
+        const shareholder: Shareholder = {
+          name,
+          email,
+          grants,
+          id: nextID(shareholders),
+          group,
+        };
+        shareholders[shareholder.id] = shareholder;
+        if (email) {
+          const existingUser = users[email];
+          if (existingUser.shareholderID) {
+            // User already has a shareholder ID
+            console.error("User already has a shareholder ID");
+            return res(ctx.status(400));
+          }
+          users[email].shareholderID = shareholder.id;
         }
-        users[email].shareholderID = shareholder.id;
-      }
 
-      return res(ctx.json(shareholder));
-    }),
+        return res(ctx.json(shareholder));
+      }
+    ),
 
     rest.post<{ shareholderID?: number; grant: Omit<Grant, "id"> }>(
       "/grant/new",
-      (req, res, ctx) => {
+      async (req, res, ctx) => {
         const {
           shareholderID,
           grant: { issued, name, amount, type },
-        } = req.body;
+        } = await req.json();
         const grant: Grant = { name, issued, amount, id: nextID(grants), type };
         grants[grant.id] = grant;
 
@@ -122,8 +125,9 @@ export function getHandlers(
       }
     ),
 
-    rest.post<User>("/user/new", (req, res, ctx) => {
-      const { email, name } = req.body;
+    rest.post<User>("/user/new", async (req, res, ctx) => {
+      const body = await req.json();
+      const { email, name } = body;
       if (!!users[email]) {
         console.warn("User already exists");
         return res(ctx.status(400));
@@ -134,7 +138,7 @@ export function getHandlers(
         name,
       };
 
-      return res(ctx.json(req.body));
+      return res(ctx.json(body));
     }),
 
     rest.get("/grants", (req, res, ctx) => {
@@ -239,8 +243,8 @@ export function getHandlers(
 
     rest.post<Shareholder>(
       "/shareholder/:shareholderID/edit",
-      (req, res, ctx) => {
-        const { id, name, group } = req.body;
+      async (req, res, ctx) => {
+        const { id, name, group } = await req.json();
         if (shareholders[id]) {
           shareholders[id].group = group;
           shareholders[id].name = name;
