@@ -33,6 +33,7 @@ import {
 } from "../queries";
 import { NewShareholderForm } from "../components/forms/NewShareholderForm";
 import { Navbar } from "../components/forms/Navbar";
+import { getFormattedCurrency } from "../utils";
 
 export function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -158,11 +159,44 @@ export function Dashboard() {
     </Stack>
   );
 }
+
+function useTotalMarketCap() {
+  const company = useCompanyQuery();
+  const grants = useGrantsQuery();
+
+  const sum = useMemo(() => {
+    if (!company.data || !grants.data) {
+      return null;
+    }
+
+    let sum = 0;
+
+    Object.entries(company.data.shareTypes as Record<string, number>).forEach(
+      ([type, val]) => {
+        if (!val) {
+          return;
+        }
+
+        Object.entries(grants.data)
+          .filter(([_, grant]) => grant.type === type)
+          .forEach(([_, grant]) => {
+            sum += grant.amount * val;
+          });
+      }
+    );
+
+    return sum;
+  }, [company.data, grants.data]);
+
+  return sum;
+}
+
 function PieChart() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { mode } = useParams();
 
   const isChecked = searchParams.get("byValue") === "true";
+  const marketCap = useTotalMarketCap();
 
   const stats = useQuery(
     ["grants", mode, isChecked],
@@ -244,6 +278,16 @@ function PieChart() {
               </Button>
             </Stack>
             <Spacer />
+            <Box as="div" style={{ lineHeight: "40px" }}>
+              {marketCap !== null && (
+                <>
+                  Market cap:{" "}
+                  <strong style={{ fontSize: 16 }}>
+                    {getFormattedCurrency(marketCap)}
+                  </strong>
+                </>
+              )}
+            </Box>
           </Flex>
           <Flex justifyContent="center" height={400}>
             {!stats.isLoading && (
