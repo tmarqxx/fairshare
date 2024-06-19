@@ -63,42 +63,21 @@ export function Dashboard() {
   if (grant.isLoading || shareholder.isLoading) {
     return <Spinner />;
   }
-  if (!grant.data || !shareholder.data) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        <AlertTitle>Failed to get any data</AlertTitle>
-      </Alert>
-    );
-  }
 
-  // TODO: why are these inline?
-  function getGroupData() {
-    if (!shareholder.data || !grant.data) {
-      return [];
+  function getShareAmount(shareholder: Shareholder, type?: Grant["type"]) {
+    if (!grant.data) {
+      return 0;
     }
-    return ["investor", "founder", "employee"].map((group) => ({
-      x: group,
-      y: Object.values(shareholder?.data ?? {})
-        .filter((s) => s.group === group)
-        .flatMap((s) => s.grants)
-        .reduce((acc, grantID) => acc + grant.data[grantID].amount, 0),
-    }));
-  }
 
-  function getInvestorData() {
-    if (!shareholder.data || !grant.data) {
-      return [];
-    }
-    return Object.values(shareholder.data)
-      .map((s) => ({
-        x: s.name,
-        y: s.grants.reduce(
-          (acc, grantID) => acc + grant.data[grantID].amount,
-          0
-        ),
-      }))
-      .filter((e) => e.y > 0);
+    return shareholder.grants
+      .filter((grantID) => {
+        if (!type) return grant.data[grantID];
+
+        return grant.data[grantID].type === type;
+      })
+      .reduce((acc, grantID) => {
+        return acc + grant.data[grantID].amount;
+      }, 0);
   }
 
   async function submitNewShareholder(
@@ -116,17 +95,25 @@ export function Dashboard() {
 
       <Stack divider={<StackDivider />}>
         <Heading>Shareholders</Heading>
+        <Box style={{ width: "100%", maxWidth: 736, overflow: "auto" }}>
         <Table>
           <Thead>
             <Tr>
-              <Td>Name</Td>
-              <Td>Group</Td>
-              <Td>Grants</Td>
-              <Td>Shares</Td>
+                <Td fontWeight="bold">Name</Td>
+                <Td fontWeight="bold">Group</Td>
+                <Td fontWeight="bold">Grants</Td>
+                <Td fontWeight="bold">Common Shares</Td>
+                <Td fontWeight="bold">Preferred Shares</Td>
+                <Td fontWeight="bold">Total Shares</Td>
             </Tr>
           </Thead>
           <Tbody>
-            {Object.values(shareholder.data).map((s) => (
+              {shareholder.isSuccess &&
+                Object.values(shareholder.data).map((s) => {
+                  const commonAmount = getShareAmount(s, "common");
+                  const preferredAmount = getShareAmount(s, "preferred");
+
+                  return (
               <Tr key={s.id}>
                 <Td>
                   <Link to={`/shareholder/${s.id}`}>
@@ -136,18 +123,26 @@ export function Dashboard() {
                     </Stack>
                   </Link>
                 </Td>
-                <Td data-testid={`shareholder-${s.name}-group`}>{s.group}</Td>
+                      <Td data-testid={`shareholder-${s.name}-group`}>
+                        {s.group}
+                      </Td>
                 <Td data-testid={`shareholder-${s.name}-grants`}>
                   {s.grants.length}
                 </Td>
+                      <Td data-testid={`shareholder-${s.name}-common-shares`}>
+                        {commonAmount}
+                      </Td>
+                      <Td
+                        data-testid={`shareholder-${s.name}-preferred-shares`}
+                      >
+                        {preferredAmount}
+                      </Td>
                 <Td data-testid={`shareholder-${s.name}-shares`}>
-                  {s.grants.reduce(
-                    (acc, grantID) => acc + grant.data[grantID].amount,
-                    0
-                  )}
+                        {commonAmount + preferredAmount}
                 </Td>
               </Tr>
-            ))}
+                  );
+                })}
           </Tbody>
         </Table>
         <Button onClick={onOpen}>Add Shareholder</Button>
@@ -158,6 +153,7 @@ export function Dashboard() {
             </Stack>
           </ModalContent>
         </Modal>
+        </Box>
       </Stack>
     </Stack>
   );
