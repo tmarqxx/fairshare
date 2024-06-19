@@ -357,7 +357,7 @@ export function DoneStep() {
         console.error(error);
         return;
       }
-      
+
       await Promise.all([
         ...Object.values(grants).map((grant) =>
           grantMutation.mutateAsync(grant)

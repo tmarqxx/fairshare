@@ -97,21 +97,21 @@ export function ShareholderPage() {
             gap="4"
             flexWrap="wrap"
           >
-          <Text fontSize="sm" fontWeight="thin">
-            <strong data-testid="grants-issued">
-              {shareholder.grants.length}
-            </strong>{" "}
-            grants issued
-          </Text>
-          <Text fontSize="sm" fontWeight="thin">
-            <strong data-testid="shares-granted">
+            <Text fontSize="sm" fontWeight="thin">
+              <strong data-testid="grants-issued">
+                {shareholder.grants.length}
+              </strong>{" "}
+              grants issued
+            </Text>
+            <Text fontSize="sm" fontWeight="thin">
+              <strong data-testid="shares-granted">
                 {shareholder.grantsData.reduce(
                   (acc, grant) => acc + grant.amount,
-                0
-              )}
-            </strong>{" "}
-            shares
-          </Text>
+                  0
+                )}
+              </strong>{" "}
+              shares
+            </Text>
             <Text fontSize="sm" fontWeight="thin">
               <strong data-testid="shares-total-value">
                 {getFormattedCurrency(
@@ -135,29 +135,29 @@ export function ShareholderPage() {
         </Flex>
         <Box style={{ width: "100%", maxWidth: 736, overflow: "auto" }}>
           <Table>
-        <Thead>
-          <Tr>
+            <Thead>
+              <Tr>
                 <Td fontWeight="bold">Occasion</Td>
                 <Td fontWeight="bold">Date</Td>
                 <Td fontWeight="bold">Amount</Td>
                 <Td fontWeight="bold">Type</Td>
                 <Td fontWeight="bold">Value</Td>
-          </Tr>
-        </Thead>
-        <Tbody role="rowgroup">
+              </Tr>
+            </Thead>
+            <Tbody role="rowgroup">
               {shareholder.grantsData.map((grant) => {
-              return (
+                return (
                   <Tr key={grant.id}>
                     <Td>{grant.name}</Td>
                     <Td>{new Date(grant.issued).toLocaleDateString()}</Td>
                     <Td>{grant.amount}</Td>
                     <Td>{grant.type}</Td>
                     <Td>{getFormattedCurrency(grant.value)}</Td>
-                </Tr>
-              );
+                  </Tr>
+                );
               })}
-        </Tbody>
-      </Table>
+            </Tbody>
+          </Table>
         </Box>
       </Stack>
       <Modal isOpen={isOpen} onClose={onClose}>

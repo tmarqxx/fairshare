@@ -98,44 +98,44 @@ export function Dashboard() {
 
       <Stack divider={<StackDivider />}>
         <Flex>
-        <Heading>Shareholders</Heading>
+          <Heading>Shareholders</Heading>
           <Spacer />
           <Button onClick={onOpen}>Add Shareholder</Button>
         </Flex>
         <Box style={{ width: "100%", maxWidth: 736, overflow: "auto" }}>
-        <Table>
-          <Thead>
-            <Tr>
+          <Table>
+            <Thead>
+              <Tr>
                 <Td fontWeight="bold">Name</Td>
                 <Td fontWeight="bold">Group</Td>
                 <Td fontWeight="bold">Grants</Td>
                 <Td fontWeight="bold">Common Shares</Td>
                 <Td fontWeight="bold">Preferred Shares</Td>
                 <Td fontWeight="bold">Total Shares</Td>
-            </Tr>
-          </Thead>
-          <Tbody>
+              </Tr>
+            </Thead>
+            <Tbody>
               {shareholder.isSuccess &&
                 Object.values(shareholder.data).map((s) => {
                   const commonAmount = getShareAmount(s, "common");
                   const preferredAmount = getShareAmount(s, "preferred");
 
                   return (
-              <Tr key={s.id}>
-                <Td>
-                  <Link to={`/shareholder/${s.id}`}>
-                    <Stack direction="row" alignItems="center">
-                      <Text color="teal.600">{s.name}</Text>
-                      <ArrowForwardIcon color="teal.600" />
-                    </Stack>
-                  </Link>
-                </Td>
+                    <Tr key={s.id}>
+                      <Td>
+                        <Link to={`/shareholder/${s.id}`}>
+                          <Stack direction="row" alignItems="center">
+                            <Text color="teal.600">{s.name}</Text>
+                            <ArrowForwardIcon color="teal.600" />
+                          </Stack>
+                        </Link>
+                      </Td>
                       <Td data-testid={`shareholder-${s.name}-group`}>
                         {s.group}
                       </Td>
-                <Td data-testid={`shareholder-${s.name}-grants`}>
-                  {s.grants.length}
-                </Td>
+                      <Td data-testid={`shareholder-${s.name}-grants`}>
+                        {s.grants.length}
+                      </Td>
                       <Td data-testid={`shareholder-${s.name}-common-shares`}>
                         {commonAmount}
                       </Td>
@@ -144,21 +144,21 @@ export function Dashboard() {
                       >
                         {preferredAmount}
                       </Td>
-                <Td data-testid={`shareholder-${s.name}-shares`}>
+                      <Td data-testid={`shareholder-${s.name}-shares`}>
                         {commonAmount + preferredAmount}
-                </Td>
-              </Tr>
+                      </Td>
+                    </Tr>
                   );
                 })}
-          </Tbody>
-        </Table>
+            </Tbody>
+          </Table>
 
-        <Modal isOpen={isOpen} onClose={onClose}>
+          <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
-          <ModalContent>
+            <ModalContent>
               <NewShareholderForm onSubmit={submitNewShareholder} />
-          </ModalContent>
-        </Modal>
+            </ModalContent>
+          </Modal>
         </Box>
       </Stack>
     </Stack>
