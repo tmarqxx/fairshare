@@ -104,6 +104,20 @@ describe("Onboarding", () => {
 
     const nextButton = screen.getByRole("button", { name: "Next" });
     await userEvent.click(nextButton);
+    expect(companyNameField).toBeInTheDocument();
+
+    const commonValueInput = screen.getByTestId("sharetype-value-0");
+    const preferredValueInput = screen.getByTestId("sharetype-value-1");
+
+    await userEvent.click(commonValueInput);
+    await userEvent.paste("5.25");
+    expect(commonValueInput).toHaveValue(5.25);
+
+    await userEvent.click(preferredValueInput);
+    await userEvent.paste("10.0");
+    expect(preferredValueInput).toHaveValue(10);
+
+    await userEvent.click(nextButton);
     expect(companyNameField).not.toBeInTheDocument();
   });
 
@@ -199,26 +213,47 @@ describe("Onboarding", () => {
     const addGrantButton = screen.getByRole("button", { name: /Add Grant/ });
     await userEvent.click(addGrantButton);
 
+    const grantTable = screen.getAllByRole("rowgroup")[1];
+
     let grantNameInput = screen.getByTestId("grant-name");
     let grantAmountInput = screen.getByTestId("grant-amount");
+    let grantTypeInput = screen.getByTestId("grant-type");
     let grantDateInput = screen.getByTestId("grant-issued");
 
     await waitFor(() => {
       expect(grantNameInput).toBeVisible();
     });
 
+    let saveButton = screen.getByRole("button", { name: /Save/ });
+
+    expect(saveButton).toBeDisabled();
+
     await userEvent.click(grantNameInput);
     await userEvent.paste("2020 Incentive");
-    await userEvent.click(grantAmountInput);
-    await userEvent.type(grantAmountInput, "2000");
-    expect(grantAmountInput).toHaveValue(2000);
-    await userEvent.click(grantDateInput);
-    await userEvent.paste(Date.now().toLocaleString());
+    expect(grantNameInput).toHaveValue("2020 Incentive");
 
-    const saveButton = screen.getByRole("button", { name: /Save/ });
+    await userEvent.click(grantAmountInput);
+    await userEvent.paste("2000");
+    expect(grantAmountInput).toHaveValue(2000);
+
+    await userEvent.selectOptions(grantTypeInput, ["preferred"]);
+    expect(grantTypeInput).toHaveValue("preferred");
+
+    await userEvent.click(grantDateInput);
+    await userEvent.type(grantDateInput, "2024-06-18");
+    expect(grantDateInput).toHaveValue();
+
+    expect(saveButton).not.toBeDisabled();
+
     await userEvent.click(saveButton);
 
-    expect(screen.getByText("2020 Incentive")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(grantNameInput).not.toBeInTheDocument();
+    });
+
+    expect(
+      await within(grantTable).findByText(/2020 Incentive/)
+    ).toBeInTheDocument();
 
     let nextButton = screen.getByRole("link", { name: /Next/ });
     await userEvent.click(nextButton);
@@ -228,17 +263,37 @@ describe("Onboarding", () => {
 
     await userEvent.click(addGrantButton);
 
-    expect(grantNameInput).toHaveValue("");
+    grantNameInput = screen.getByTestId("grant-name");
+    grantAmountInput = screen.getByTestId("grant-amount");
+    grantTypeInput = screen.getByTestId("grant-type");
+    grantDateInput = screen.getByTestId("grant-issued");
+
     await userEvent.click(grantNameInput);
+    await userEvent.clear(grantNameInput);
     await userEvent.paste("Options conversion");
+    expect(grantNameInput).toHaveValue("Options conversion");
+
     await userEvent.click(grantAmountInput);
     await userEvent.paste("100");
+    expect(grantAmountInput).toHaveValue(100);
+
+    expect(grantTypeInput).toHaveValue("common");
+
     await userEvent.click(grantDateInput);
-    await userEvent.paste(Date.now().toLocaleString());
+    await userEvent.type(grantDateInput, "2024-06-12");
+    expect(grantDateInput).toHaveValue();
+
+    saveButton = screen.getByRole("button", { name: /Save/ });
 
     await userEvent.click(saveButton);
 
-    expect(screen.getByText("Options conversion")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(grantNameInput).not.toBeInTheDocument();
+    });
+
+    expect(
+      await within(grantTable).findByText("Options conversion")
+    ).toBeInTheDocument();
 
     nextButton = screen.getByRole("link", { name: /Next/ });
     await userEvent.click(nextButton);
@@ -248,14 +303,26 @@ describe("Onboarding", () => {
 
     await userEvent.click(addGrantButton);
 
+    grantNameInput = screen.getByTestId("grant-name");
+    grantAmountInput = screen.getByTestId("grant-amount");
+    grantTypeInput = screen.getByTestId("grant-type");
+    grantDateInput = screen.getByTestId("grant-issued");
+
     expect(grantNameInput).toHaveValue("");
     await userEvent.click(grantNameInput);
     await userEvent.paste("Series A Purchase");
+    expect(grantNameInput).toHaveValue("Series A Purchase");
+
     await userEvent.click(grantAmountInput);
     // Something is wrong with this input *hint*
-    // userEvent.paste(grantAmountInput, '800')
-    await userEvent.click(grantNameInput);
-    await userEvent.paste("12/12/2020");
+    await userEvent.paste("800");
+    expect(grantAmountInput).toHaveValue(800);
+
+    expect(grantTypeInput).toHaveValue("common");
+
+    await userEvent.click(grantDateInput);
+    await userEvent.type(grantDateInput, "2020-12-12");
+    expect(grantDateInput).toHaveValue();
 
     await userEvent.click(saveButton);
 
